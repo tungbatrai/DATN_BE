@@ -1,43 +1,53 @@
-import React, { Component } from 'react'
-import { BrowserRouter, HashRouter, Route, Switch } from 'react-router-dom'
-import './scss/style.scss'
+/** @format */
 
-const loading = (
-  <div className="pt-3 text-center">
-    <div className="sk-spinner sk-spinner-pulse"></div>
-  </div>
-)
+import { ConnectedRouter } from "connected-react-router";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { Route, Switch } from "react-router-dom";
+import Header from "./component/common/Header";
+import NavigationBar from "./component/common/NavigationBar";
+import { userConstants } from "./constants/user.constants";
+import { routes } from "./routes";
+import "./styles/custom.scss";
+import configureStore, { history } from "./utils/store";
 
-// Containers
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+const store = configureStore();
 
-// Pages
-const Login = React.lazy(() => import('./views/pages/login/Login'))
-const Register = React.lazy(() => import('./views/pages/register/Register'))
-const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
-const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
+function App() {
+  const dispatch = useDispatch();
 
-class App extends Component {
-  render() {
-    return (
-      <BrowserRouter>
-        <React.Suspense fallback={loading}>
+  useEffect(() => {
+    var strToken = localStorage.getItem("token");
+   if (strToken) {
+      var token = JSON.parse(strToken);
+    }
+    if (token) {
+      dispatch({ type: userConstants.LOGIN_SUCCESS, token });
+    }
+  }, []);
+
+  return (
+    <ConnectedRouter history={history}>
+      <Header />
+      <div id="layoutSidenav">
+        <NavigationBar />
+        <div id="layoutSidenav_content">
           <Switch>
-            <Route exact path="/login" name="Login Page" render={(props) => <Login {...props} />} />
-            <Route
-              exact
-              path="/register"
-              name="Register Page"
-              render={(props) => <Register {...props} />}
-            />
-            {/* <Route exact path="/404" name="Page 404" render={(props) => <Page404 {...props} />} />
-            <Route exact path="/500" name="Page 500" render={(props) => <Page500 {...props} />} /> */}
-            <Route path="/" name="Dashboard" render={(props) => <DefaultLayout {...props} />} />
+            {routes.map((route, index) => {
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  exact={route.exact}
+                  component={route.component}
+                />
+              );
+            })}
           </Switch>
-        </React.Suspense>
-      </BrowserRouter>
-    )
-  }
+        </div>
+      </div>
+    </ConnectedRouter>
+  );
 }
 
-export default App
+export default App;
