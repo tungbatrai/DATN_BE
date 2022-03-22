@@ -9,7 +9,6 @@ import { ValidationText } from "../../constants/Validation";
 import { AdminService } from "../../services/AdminService";
 import ValidationError from "../common/ValidationError";
 import { NavLink, useHistory } from "react-router-dom";
-import bcrypt from "bcryptjs";
 export default function AdminRegister(props) {
   const {
     register,
